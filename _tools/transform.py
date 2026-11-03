@@ -284,71 +284,10 @@ def rebuild_pillars(soup, ul, t, with_desc):
         ul.append(tag(soup, c))
 
 
-HOME = {
-    "en": {
-        "intro_eyebrow": "RMAL Hospitality PJSC",
-        "stats": [("5", "", "Brands in our portfolio"), ("12", "", "Wagamama restaurants across the UAE"),
-                  ("3", "", "Integrated service pillars"), ("12", "", "Month Ruwad Addiyafah programme")],
-        "brands_eyebrow": "Our Brands",
-        "brands_title": "A growing portfolio of brands people come back for.",
-        "brands_all": "Explore all brands",
-        "filters": [("all", "All"), ("intl", "International"), ("home", "Homegrown"), ("partner", "Partnerships")],
-        "discover": "Discover",
-        "brand_tags": {"wagamama": "Pan-Asian · 12 restaurants", "trader-vics": "Polynesian dining & nightlife",
-                       "mazaj": "Lebanese resto-café", "cupbop": "Korean BBQ, fast casual",
-                       "marco-pierre-white": "Modern gastronomy"},
-        "quote_by": "RMAL Hospitality",
-        "careers": ("Careers", "Build your career as we build the business.", "Join RMAL"),
-        "prev": "Previous", "next": "Next",
-    },
-    "ar": {
-        "intro_eyebrow": "رمال للضيافة",
-        "stats": [("5", "", "علامات تجارية في محفظتنا"), ("12", "", "مطعم واغاماما في الإمارات"),
-                  ("3", "", "ركائز متكاملة لخدماتنا"), ("12", "", "شهراً من برنامج روّاد الضيافة")],
-        "brands_eyebrow": "علاماتنا التجارية",
-        "brands_title": "محفظة متنامية من علامات يعود إليها الناس.",
-        "brands_all": "استكشف جميع العلامات",
-        "filters": [("all", "الكل"), ("intl", "علامات عالمية"), ("home", "علامات محلية"), ("partner", "شراكات")],
-        "discover": "اكتشف",
-        "brand_tags": {"wagamama": "مطبخ آسيوي · 12 مطعماً", "trader-vics": "مطبخ بولينيزي وسهرات",
-                       "mazaj": "مقهى ومطعم لبناني", "cupbop": "شواء كوري سريع",
-                       "marco-pierre-white": "فن الطهي الحديث"},
-        "quote_by": "رمال للضيافة",
-        "careers": ("الوظائف", "ابنِ مسيرتك المهنية بينما نبني أعمالنا.", "انضم إلى رمال"),
-        "prev": "السابق", "next": "التالي",
-    },
-}
-
-# name, photo, filter group
-BRAND_SLIDES = [
-    ("wagamama", "Wagamama", "wagamama.jpg", "intl"),
-    ("trader-vics", "Trader Vic’s", "trader-vics-figma.jpg", "intl"),
-    ("mazaj", "Mazaj", "mazaj.jpg", "home"),
-    ("cupbop", "Cupbop", "cupbop-2.jpg", "intl"),
-    ("marco-pierre-white", "Marco Pierre White", "marco-pierre-white-2.jpg", "partner"),
-]
-BRAND_NAMES_AR = {"wagamama": "واغاماما", "trader-vics": "تريدر فيكس", "mazaj": "مزاج", "cupbop": "كب بوب",
-                  "marco-pierre-white": "ماركو بيير وايت"}
-
-ARROWS = ('<button class="rx-arrow" data-dir="-1" aria-label="{prev}"><span aria-hidden="true">←</span></button>'
-          '<button class="rx-arrow" data-dir="1" aria-label="{next}"><span aria-hidden="true">→</span></button>')
-
-
-def do_home(soup, lang, t, quote):
-    h = HOME[lang]
+def do_home(soup, lang, t):
     main = soup.find("main")
     hero = main.find("section")
     video = hero.find("video")
-
-    # Keep the old hero copy: it becomes the intro statement under the logo strip.
-    h1 = hero.find("h1")
-    lines = [text_of(x) for x in h1.find_all("span", recursive=False) if text_of(x)] or [text_of(h1)]
-    hero_p = text_of(h1.find_next("p"))
-    hero_cta = next((text_of(a).replace("→", "").strip() for a in hero.find_all("a")), "Discover RMAL")
-    if hero_cta.isupper():
-        w = hero_cta.split()
-        hero_cta = " ".join([w[0].capitalize()] + [x if x == "RMAL" else x.lower() for x in w[1:]])
-
     for div in hero.find_all("div", recursive=False):
         if not div.find("video"):
             div.decompose()
@@ -359,12 +298,8 @@ def do_home(soup, lang, t, quote):
     hero["class"] = classes(hero) + ["rx-hero"]
     slides = "".join(f'<img class="rx-slide" src="{media(f)}" alt="">' for f in ["hero-2.jpg", "hero-5.jpg", "hero-4.jpg", "hero-1.jpg"])
     hero.append(tag(soup, f'<div class="rx-slides">{slides}</div>'))
-    hero.append(tag(soup, f"""<div class="rx-hero-ui">
-  <span class="rx-count"><b class="rx-cur">01</b> / <span class="rx-tot">04</span></span>
-  <span class="rx-progress"><i></i></span>
-  <span class="rx-hero-arrows">{ARROWS.format(**h)}</span>
-  <button class="rx-sound" type="button">{t["sound_on"]}</button>
-</div>"""))
+    hero.append(tag(soup, '<div class="rx-dots"></div>'))
+    hero.append(tag(soup, f'<button class="rx-sound" type="button">{t["sound_on"]}</button>'))
 
     strip = soup.find("section", id="brand-strip")
     if strip:
@@ -375,67 +310,22 @@ def do_home(soup, lang, t, quote):
         strip.clear()
         strip.append(tag(soup, f'<div class="rx-logos">{logos}</div>'))
 
-    # Intro statement (old hero text) + key numbers
-    title = "<br>".join(lines)
-    stats = "".join(f'<li><b class="rx-num" data-to="{n}">{n}</b>{suf}<span>{lbl}</span></li>' for n, suf, lbl in h["stats"])
-    intro = tag(soup, f"""<section class="rx-intro">
-  <div class="rx-wrap">
-    <div class="rx-intro-grid">
-      <div><p class="rx-eyebrow">{h["intro_eyebrow"]}</p><h2 class="font-heading">{title}</h2></div>
-      <div><p class="rx-lead">{hero_p}</p><a class="rx-link" href="/{lang}/about">{hero_cta} →</a></div>
-    </div>
-    <ul class="rx-stats">{stats}</ul>
-  </div>
-</section>""")
-    strip.insert_after(intro)
+    about = soup.find("section", id="about")
+    if about:
+        swap_class(about, {"bg-cream"}, "rx-bg-sand")
 
     wwd = soup.find("section", id="what-we-do")
     if wwd:
         rebuild_pillars(soup, wwd.find("ul"), t, with_desc=False)
 
-    # Brand portfolio slider with filter tabs
-    tabs = "".join(f'<button class="rx-tab{" on" if k == "all" else ""}" data-filter="{k}">{lbl}</button>' for k, lbl in h["filters"])
-    cards = "".join(f"""<a class="rx-bcard" data-group="{grp}" href="/{lang}/brands#{key}">
-      <span class="rx-bcard-ph"><img src="{media(img)}" alt="" loading="lazy"></span>
-      <span class="rx-bcard-tag">{h["brand_tags"][key]}</span>
-      <span class="rx-bcard-name">{BRAND_NAMES_AR[key] if lang == "ar" else name}</span>
-      <span class="rx-link">{h["discover"]} →</span></a>""" for key, name, img, grp in BRAND_SLIDES)
-    portfolio = tag(soup, f"""<section class="rx-portfolio" id="portfolio">
-  <div class="rx-wrap">
-    <div class="rx-sec-head">
-      <div><p class="rx-eyebrow">{h["brands_eyebrow"]}</p><h2 class="font-heading">{h["brands_title"]}</h2></div>
-      <a class="rx-link" href="/{lang}/brands">{h["brands_all"]} →</a>
-    </div>
-    <div class="rx-slider-bar"><div class="rx-tabs" role="tablist">{tabs}</div>
-      <div class="rx-slider-nav"><span class="rx-count"><b class="rx-cur">01</b> / <span class="rx-tot">05</span></span>{ARROWS.format(**h)}</div></div>
-  </div>
-  <div class="rx-track">{cards}</div>
-</section>""")
-    (wwd or intro).insert_after(portfolio)
-
-    # Heritage moves below the portfolio, on white
-    about = soup.find("section", id="about")
-    if about:
-        swap_class(about, {"bg-cream"}, "rx-bg-white")
-        portfolio.insert_after(about.extract())
-        anchor = about
-    else:
-        anchor = portfolio
-
-    if quote:
-        q = tag(soup, f"""<section class="rx-quote"><div class="rx-wrap">
-  <blockquote><p>“{quote}”</p><cite>{h["quote_by"]}</cite></blockquote></div></section>""")
-        anchor.insert_after(q)
-
     talent = soup.find("section", id="talent")
     if talent:
-        swap_class(talent, {"bg-cream"}, "rx-bg-sand")
-        e, ttl, link = h["careers"]
-        talent.insert_after(tag(soup, f"""<a class="rx-feature" href="/{lang}/careers">
-  <img src="{media('hero-5.jpg')}" alt="" loading="lazy" style="object-position:50% 35%">
+        e, h, p, link = t["feature"]
+        talent.insert_after(tag(soup, f"""<a class="rx-feature" href="/{lang}/brands">
+  <img src="{media('wagamama.jpg')}" alt="" loading="lazy">
   <div class="rx-feature-in mx-auto max-w-[1400px] px-4">
     <p class="font-body text-eyebrow font-semibold uppercase">{e}</p>
-    <h2 class="font-heading">{ttl}</h2>
+    <h2 class="font-heading">{h}</h2><p class="rx-feature-p">{p}</p>
     <span class="rx-link">{link} →</span>
   </div></a>"""))
 
@@ -532,7 +422,6 @@ def process(lang):
     about = dst / "about" / "index.html"
     files.sort(key=lambda p: p != about)
     board_html = None
-    quote = None
 
     for f in files:
         rel = f.parent.relative_to(dst).as_posix()
@@ -552,7 +441,7 @@ def process(lang):
         drop_cookie_button(soup)
 
         if is_home:
-            do_home(soup, lang, t, quote)
+            do_home(soup, lang, t)
         elif rel == "what-we-do":
             do_what_we_do(soup, t)
         elif rel == "brands":
@@ -564,9 +453,6 @@ def process(lang):
         elif rel == "about":
             sec = soup.find("section", id="leadership")
             board_html = str(sec) if sec else None
-            amb = soup.find("section", id="our-ambition")
-            ps = [text_of(p) for p in amb.find_all("p") if len(text_of(p)) > 40] if amb else []
-            quote = ps[-1] if ps else None
 
         dark_top = is_home or soup.find("section", id="hero") is not None
         header_and_menu(soup, lang, t, solid=not dark_top)
