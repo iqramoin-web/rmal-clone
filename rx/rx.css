@@ -1,0 +1,198 @@
+/* RMAL — client feedback overrides (Nov 2026). Loaded after the original stylesheet. */
+
+:root {
+  --rx-navy: #182e49;
+  --rx-navy-deep: #0e1c2c;
+  --rx-gold: #97875f;
+  --rx-gold-soft: #c3aa69;
+  --rx-cream: #fbfbf7;
+  --rx-sand: #efebe3;
+  --rx-sky: #e3edf8;
+}
+
+html { scroll-behavior: auto; }
+
+/* ---------- Headings ≈ 2× the 16px body text ---------- */
+main h1, main h2 {
+  font-size: 32px !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.01em !important;
+}
+main h3 { font-size: 22px !important; line-height: 1.3 !important; }
+@media (max-width: 767px) {
+  main h1, main h2 { font-size: 28px !important; }
+  main h3 { font-size: 20px !important; }
+}
+
+/* Square body images (class is not in the original compiled CSS) */
+.aspect-square { aspect-ratio: 1 / 1 !important; height: auto !important; }
+
+/* ---------- Backgrounds ---------- */
+.rx-bg-white { background: #fff !important; }
+.rx-bg-sand { background: var(--rx-sand) !important; }
+
+/* ---------- CTAs: no boxes, subtle underline + arrow nudge ---------- */
+.rx-cta, .rx-link {
+  display: inline-flex !important; align-items: center; gap: 8px;
+  padding: 6px 0 !important; border: 0 !important; background: none !important;
+  font-family: var(--fb, inherit); font-weight: 600; font-size: 14px; letter-spacing: .02em;
+  text-transform: none !important;
+  background-image: linear-gradient(currentColor, currentColor) !important;
+  background-size: 0% 1.5px !important; background-position: 0 100% !important; background-repeat: no-repeat !important;
+  transition: background-size .3s ease, color .25s ease;
+}
+.rx-cta span { text-transform: none !important; letter-spacing: .02em !important; font-size: 14px !important; }
+.rx-cta:hover, a:hover .rx-cta, .rx-link:hover, a:hover > .rx-link { background-size: 100% 1.5px !important; }
+.rx-cta:hover > span:last-child, .rx-link:hover { color: var(--rx-gold); }
+[dir="rtl"] .rx-cta, [dir="rtl"] .rx-link { background-position: 100% 100% !important; }
+
+.rx-cta-pill {
+  border: 0 !important; border-radius: 999px; padding: 10px 20px !important;
+  background: #fff !important; color: var(--rx-navy) !important;
+  transition: background .25s ease, color .25s ease;
+}
+.rx-cta-pill span { color: inherit !important; }
+.rx-cta-pill:hover { background: var(--rx-gold-soft) !important; }
+#rx-header.rx-solid .rx-cta-pill { background: var(--rx-navy) !important; color: #fff !important; }
+#rx-header.rx-solid .rx-cta-pill:hover { background: var(--rx-gold) !important; }
+form button[type="submit"] { border-radius: 999px; }
+
+/* ---------- Header: solid state ---------- */
+#rx-header { transition: background-color .3s ease, box-shadow .3s ease; }
+#rx-header.rx-solid { background: rgba(255,255,255,.97) !important; box-shadow: 0 1px 0 rgba(24,46,73,.1); }
+#rx-header.rx-solid img[src="/logo.svg"] { opacity: 0 !important; }
+#rx-header.rx-solid img[src="/logo-dark.svg"] { opacity: 1 !important; }
+#rx-header.rx-solid nav a:not(.rx-cta-pill), #rx-header.rx-solid nav .text-stone, #rx-header.rx-solid nav .text-sand { color: var(--rx-navy) !important; }
+#rx-header.rx-solid #rx-menu-btn span { background: var(--rx-navy) !important; }
+
+/* ---------- Menu panel: smaller text, no lines, no arrows, light-blue hover ---------- */
+#rx-menu {
+  position: fixed; inset: 0; z-index: 70; background: #fff;
+  display: flex; flex-direction: column; padding: 0 16px 28px;
+  opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility .25s;
+}
+#rx-menu.open { opacity: 1; visibility: visible; }
+.rx-menu-top { display: flex; align-items: center; justify-content: space-between; height: 82px; }
+#rx-menu-close {
+  width: 44px; height: 44px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--rx-sky); color: var(--rx-navy); font-size: 24px; line-height: 1;
+}
+#rx-menu nav { display: flex; flex-direction: column; gap: 4px; margin-top: 20px; }
+#rx-menu nav a {
+  font-family: var(--fh, inherit); font-size: 20px; color: var(--rx-navy);
+  padding: 12px 16px; border-radius: 12px; transition: background .2s ease;
+}
+#rx-menu nav a:hover, #rx-menu nav a:active, #rx-menu nav a:focus-visible, #rx-menu nav a.active { background: var(--rx-sky); }
+.rx-menu-foot { margin-top: auto; padding: 0 16px; display: flex; gap: 20px; align-items: center; font-size: 14px; color: #5d6d80; }
+.rx-lang { padding: 8px 16px; border-radius: 999px; background: var(--rx-sky); color: var(--rx-navy); font-weight: 600; }
+body.rx-menu-open { overflow: hidden; }
+@media (min-width: 1280px) { #rx-menu { display: none; } }
+
+/* ---------- Home hero: video → image carousel, no text overlay ---------- */
+.rx-hero video, .rx-hero .rx-slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.rx-hero > div:first-child { position: absolute; inset: 0; }
+.rx-hero::after {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 150px; z-index: 2; pointer-events: none;
+  background: linear-gradient(rgba(10,20,34,.45), transparent);
+}
+.rx-slides { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease; }
+.rx-slide { opacity: 0; transition: opacity 1.2s ease; }
+.rx-slide.on { opacity: 1; }
+.rx-hero.carousel .rx-slides { opacity: 1; }
+.rx-hero.carousel video { opacity: 0; transition: opacity 1s ease; }
+.rx-dots { position: absolute; z-index: 3; bottom: 26px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; opacity: 0; transition: opacity .6s; }
+.rx-hero.carousel .rx-dots { opacity: 1; }
+.rx-dots button { width: 28px; height: 3px; padding: 0; border: 0; border-radius: 2px; background: rgba(255,255,255,.45); cursor: pointer; }
+.rx-dots button.on { background: #fff; }
+.rx-sound {
+  position: absolute; z-index: 3; bottom: 20px; inset-inline-end: 16px;
+  border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer;
+  background: rgba(255,255,255,.18); color: #fff; font-size: 12px; font-weight: 600; letter-spacing: .06em;
+  backdrop-filter: blur(6px);
+}
+.rx-hero.carousel .rx-sound { display: none; }
+
+/* ---------- Brand logo strip (white) ---------- */
+.rx-logos {
+  max-width: 1400px; margin: 0 auto; padding: 0 16px;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 28px 64px;
+}
+.rx-logos img { height: 34px; width: auto; opacity: .8; filter: brightness(0); transition: opacity .2s; }
+.rx-logos img.rx-logo-tv { filter: none; opacity: 1; }
+.rx-logos a:hover img { opacity: 1; }
+.rx-logo-tv { background: var(--rx-navy); padding: 6px; border-radius: 8px; height: 52px !important; }
+@media (max-width: 767px) { .rx-logos { gap: 22px 36px; } .rx-logos img { height: 24px; } .rx-logo-tv { height: 40px !important; } }
+
+/* ---------- Service pillar cards: full photo + overlaid title ---------- */
+.rx-pcards {
+  display: grid; gap: 28px; grid-template-columns: 1fr;
+  max-width: 1400px; margin: 26px auto 0; padding: 0 16px; list-style: none;
+}
+@media (min-width: 768px) { .rx-pcards { grid-template-columns: repeat(3, 1fr); } }
+.rx-pcard { display: flex; flex-direction: column; }
+.rx-pcard-ph { position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden; background: var(--rx-navy-deep); }
+.rx-pcard-ph img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.rx-pcard-ph:hover img { transform: scale(1.04); }
+.rx-pcard-ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(8,17,29,.8)); }
+.rx-pcard-ph h3 {
+  position: absolute; z-index: 2; inset: auto 22px 20px 22px; margin: 0;
+  font-family: var(--fh, inherit); color: #fff !important; font-weight: 400;
+}
+.rx-pcard-sub { margin: 16px 0 0; font-size: 15px; font-weight: 600; color: var(--rx-gold); }
+.rx-pcard-desc { margin: 8px 0 0; font-weight: 300; color: #312f32; }
+.rx-pcard .rx-link { margin-top: 10px; align-self: flex-start; color: var(--rx-navy); }
+.bg-primary-800 .rx-pcard-sub { color: var(--rx-gold-soft); }
+.bg-primary-800 .rx-pcard .rx-link { color: #fff; }
+@media (max-width: 767px) { .rx-pcard-ph { max-height: 520px; } }
+
+/* ---------- Full-width clickable image section ---------- */
+.rx-feature { position: relative; display: block; height: 70vh; min-height: 420px; max-height: 640px; overflow: hidden; color: #fff; }
+.rx-feature > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .8s ease; }
+.rx-feature::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,17,29,.75), rgba(8,17,29,.1) 70%); }
+[dir="rtl"] .rx-feature::after { background: linear-gradient(-90deg, rgba(8,17,29,.75), rgba(8,17,29,.1) 70%); }
+.rx-feature-in { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 56px; }
+.rx-feature-in p:first-child { color: var(--rx-gold-soft); margin-bottom: 12px; }
+.rx-feature h2 { color: #fff; max-width: 560px; margin-bottom: 10px; }
+.rx-feature-p { max-width: 520px; color: rgba(255,255,255,.85); font-weight: 300; }
+.rx-feature .rx-link { color: #fff; margin-top: 12px; align-self: flex-start; }
+.rx-feature:hover > img { transform: scale(1.03); }
+@media (max-width: 767px) {
+  .rx-feature { height: 78svh; max-height: 560px; }
+  .rx-feature::after, [dir="rtl"] .rx-feature::after { background: linear-gradient(transparent 25%, rgba(8,17,29,.85)); }
+}
+
+/* ---------- Compact inner banners (≈40% of the old 560/620px) ---------- */
+.rx-banner { height: 248px !important; min-height: 0 !important; }
+.rx-banner > div.absolute.bottom-0 { padding-bottom: 28px !important; }
+.rx-banner .gap-5 { gap: 8px !important; }
+@media (max-width: 767px) { .rx-banner { height: 224px !important; } .rx-banner > div.absolute.bottom-0 { padding-bottom: 22px !important; } }
+
+/* ---------- Pages that start with their title (Careers, Newsroom) ---------- */
+.rx-pagehead { background: #fff; padding: 160px 0 48px; }
+.rx-pagehead p { margin-bottom: 14px; }
+@media (max-width: 767px) { .rx-pagehead { padding: 124px 0 28px; } }
+
+/* ---------- Our Brands: cream page, white brand blocks ---------- */
+.rx-brands-intro { background: var(--rx-cream); padding: 64px 0 8px; }
+.rx-brands-intro p { max-width: 780px; font-size: 20px; line-height: 1.6; font-weight: 300; color: var(--rx-navy); }
+.rx-brand-sec { background: var(--rx-cream); padding: 24px 0; scroll-margin-top: 90px; }
+.rx-brand-sec:last-of-type { padding-bottom: 96px; }
+.rx-brand-card { background: #fff; padding: 48px; }
+.rx-brand-logo { height: 48px; width: auto; margin-bottom: 28px; }
+.rx-brand-logo.rx-logo-tv { height: 76px !important; }
+.rx-brand-photo { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 32px; }
+.rx-brand-text { display: grid; gap: 16px 56px; }
+.rx-brand-title p { margin-bottom: 10px; }
+.rx-brand-body > div { gap: 14px !important; }
+.rx-brand-body .rx-cta { margin-top: 16px; }
+@media (min-width: 1024px) { .rx-brand-text { grid-template-columns: 5fr 7fr; } }
+@media (max-width: 767px) {
+  .rx-brands-intro { padding: 40px 0 4px; }
+  .rx-brands-intro p { font-size: 18px; }
+  .rx-brand-card { padding: 24px 20px; }
+  .rx-brand-logo { height: 36px; margin-bottom: 20px; }
+  .rx-brand-logo.rx-logo-tv { height: 56px !important; }
+  .rx-brand-photo { aspect-ratio: 4 / 3; margin-bottom: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
