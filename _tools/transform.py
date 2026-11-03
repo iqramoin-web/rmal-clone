@@ -294,10 +294,18 @@ def do_home(soup, lang, t):
     if video.has_attr("loop"):
         del video["loop"]
     video["id"] = "rx-hero-video"
-    video["preload"] = "auto"
+    # RMAL film (client-supplied, re-encoded in video/). rx.js picks the size and starts it.
+    for attr in ("src", "autoplay"):
+        if video.has_attr(attr):
+            del video[attr]
+    video["data-src"] = "/video/rmal-hero.mp4"
+    video["data-src-mobile"] = "/video/rmal-hero-mobile.mp4"
+    video["poster"] = "/video/rmal-hero-poster.jpg"
+    video["preload"] = "none"
     hero["class"] = classes(hero) + ["rx-hero"]
     slides = "".join(f'<img class="rx-slide" src="{media(f)}" alt="">' for f in ["hero-2.jpg", "hero-5.jpg", "hero-4.jpg", "hero-1.jpg"])
     hero.append(tag(soup, f'<div class="rx-slides">{slides}</div>'))
+    hero.append(tag(soup, '<span class="rx-iris-ring" aria-hidden="true"></span>'))
     hero.append(tag(soup, '<div class="rx-dots"></div>'))
     hero.append(tag(soup, f'<button class="rx-sound" type="button">{t["sound_on"]}</button>'))
 

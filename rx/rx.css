@@ -89,17 +89,43 @@ body.rx-menu-open { overflow: hidden; }
 @media (min-width: 1280px) { #rx-menu { display: none; } }
 
 /* ---------- Home hero: video → image carousel, no text overlay ---------- */
-.rx-hero video, .rx-hero .rx-slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.rx-hero > div:first-child { position: absolute; inset: 0; }
+.rx-hero { background: #182e49; }
+.rx-hero .rx-slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* The film is letterboxed: oversize it so the black bars sit outside the hero. */
+.rx-hero video { position: absolute; left: 0; top: -8%; width: 100%; height: 116%; object-fit: cover; transform-origin: 50% 50%; }
+.rx-hero > div:first-child { position: absolute; inset: 0; overflow: hidden; }
 .rx-hero::after {
   content: ""; position: absolute; inset: 0 0 auto 0; height: 150px; z-index: 2; pointer-events: none;
   background: linear-gradient(rgba(10,20,34,.45), transparent);
 }
-.rx-slides { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease; }
-.rx-slide { opacity: 0; transition: opacity 1.2s ease; }
+
+/* Video → carousel: the first photo opens out of the film's navy logo card like an iris,
+   settling from a slight zoom while the film eases back. */
+.rx-slides { position: absolute; inset: 0; z-index: 1; clip-path: circle(0% at 50% 50%); }
+.rx-slide { opacity: 0; transition: opacity 1.4s ease; }
 .rx-slide.on { opacity: 1; }
-.rx-hero.carousel .rx-slides { opacity: 1; }
-.rx-hero.carousel video { opacity: 0; transition: opacity 1s ease; }
+.rx-hero.reveal .rx-slides { clip-path: circle(150% at 50% 50%); transition: clip-path 1.9s cubic-bezier(.77,0,.18,1); }
+.rx-hero.reveal .rx-slide.on { animation: rx-settle 2.6s cubic-bezier(.22,1,.36,1) both; }
+.rx-hero.reveal video { transform: scale(1.06); opacity: .0; transition: transform 1.9s cubic-bezier(.77,0,.18,1), opacity .6s ease 1.3s; }
+.rx-hero.carousel .rx-slides { clip-path: none; }
+@keyframes rx-settle { from { transform: scale(1.18); } to { transform: scale(1); } }
+.rx-hero.carousel .rx-slide.on:not(.first) { animation: rx-drift 7s ease-out both; }
+@keyframes rx-drift { from { transform: scale(1.06); } to { transform: scale(1); } }
+.rx-iris-ring {
+  position: absolute; z-index: 2; left: 50%; top: 50%; width: 10px; height: 10px; border-radius: 50%;
+  transform: translate(-50%, -50%); border: 1px solid rgba(195,170,105,.9); opacity: 0; pointer-events: none;
+}
+.rx-hero.reveal .rx-iris-ring { animation: rx-ring 1.9s cubic-bezier(.77,0,.18,1) both; }
+@keyframes rx-ring {
+  0% { width: 10px; height: 10px; opacity: 0; }
+  15% { opacity: 1; }
+  100% { width: 300vmax; height: 300vmax; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rx-slides { clip-path: none; opacity: 0; }
+  .rx-hero.reveal .rx-slides { opacity: 1; transition: opacity .6s ease; }
+  .rx-hero.reveal .rx-slide.on, .rx-hero.carousel .rx-slide.on, .rx-hero.reveal .rx-iris-ring { animation: none; }
+}
 .rx-dots { position: absolute; z-index: 3; bottom: 26px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; opacity: 0; transition: opacity .6s; }
 .rx-hero.carousel .rx-dots { opacity: 1; }
 .rx-dots button { width: 28px; height: 3px; padding: 0; border: 0; border-radius: 2px; background: rgba(255,255,255,.45); cursor: pointer; }
