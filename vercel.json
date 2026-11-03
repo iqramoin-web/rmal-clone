@@ -1,0 +1,12 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "/en", "permanent": false }
+  ],
+  "rewrites": [
+    {
+      "source": "/_next/image",
+      "has": [{ "type": "query", "key": "url", "value": "/api/media/file/(?<file>.+)" }],
+      "destination": "/api/media/file/:file"
+    }
+  ]
+}
