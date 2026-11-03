@@ -382,7 +382,7 @@ def do_home(soup, lang, t):
 
     intro = tag(soup, f"""<section class="rx-jintro" id="rx-intro"><div class="rx-jwrap">
   <p class="rx-jeyebrow">{h["intro_eyebrow"]}</p>
-  <h2 class="rx-jtitle">{"<br>".join(lines)}</h2><span class="rx-rule"></span>
+  <h1 class="rx-jtitle">{"<br>".join(lines)}</h1><span class="rx-rule"></span>
   <p class="rx-jtext">{hero_p}</p>
   <a class="rx-link" href="/{lang}/about">{cta} →</a>
 </div></section>""")
