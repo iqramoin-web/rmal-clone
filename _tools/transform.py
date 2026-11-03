@@ -218,14 +218,7 @@ def header_and_menu(soup, lang, t, solid):
     if solid:
         header["class"] = classes(header) + ["rx-solid"]
         header["data-solid"] = "1"
-    header["class"] = classes(header) + ["rx-jhead"]
-    nav = header.find("nav")
-    logo = nav.find("a") if nav else None
-    if logo:
-        logo["class"] = classes(logo) + ["rx-logo"]
     btn = header.find("button")
-    if btn and nav:
-        nav.insert(0, btn.extract())  # menu button sits left of the centred logo
     if btn:
         btn["id"] = "rx-menu-btn"
         btn["aria-label"] = "Menu"
@@ -300,57 +293,10 @@ def rebuild_pillars(soup, ul, t, with_desc):
         ul.append(tag(soup, c))
 
 
-HOME = {
-    "en": {
-        "intro_eyebrow": "RMAL Hospitality PJSC",
-        "brands": ("Our Brands", "A Growing Portfolio", "Explore our brands"),
-        "careers": ("Careers", "Build Your Career",
-                    "Learning and development, exposure to different brands and functions, and opportunities to take on new challenges are all part of building a career with us.",
-                    "Join RMAL"),
-        "contact": ("Start a Conversation",
-                    "Whether you’re exploring an F&B opportunity, interested in our managed services, looking to join our team or simply want to get in touch, we’d be happy to hear from you.",
-                    "Contact us"),
-    },
-    "ar": {
-        "intro_eyebrow": "رمال للضيافة",
-        "brands": ("علاماتنا التجارية", "محفظة متنامية", "استكشف علاماتنا"),
-        "careers": ("الوظائف", "ابنِ مسيرتك المهنية",
-                    "التعلّم والتطوير، والتعرّف على علامات تجارية ووظائف متنوعة، وفرص خوض تحديات جديدة؛ كلها جزء من بناء مسيرتك المهنية معنا.",
-                    "انضم إلى رمال"),
-        "contact": ("ابدأ محادثة",
-                    "سواء كنت تستكشف فرصة في قطاع الأغذية والمشروبات، أو مهتماً بخدماتنا الإدارية، أو ترغب في الانضمام إلى فريقنا، يسعدنا أن نسمع منك.",
-                    "تواصل معنا"),
-    },
-}
-
-
-def centre_head(section):
-    """Centred section title with a short rule underneath."""
-    h2 = section.find("h2") if section else None
-    head = h2.find_parent("div") if h2 else None
-    if head:
-        head["class"] = classes(head) + ["rx-chead"]
-        wrap = head.find_parent("div")
-        if wrap and wrap.find("a", class_="rx-cta"):
-            wrap["class"] = classes(wrap) + ["rx-chead-wrap"]
-
-
 def do_home(soup, lang, t):
-    h = HOME[lang]
-    soup.body["class"] = classes(soup.body) + ["rx-home"]
     main = soup.find("main")
     hero = main.find("section")
     video = hero.find("video")
-
-    # The old hero copy becomes the centred intro under the logo strip.
-    h1 = hero.find("h1")
-    lines = [text_of(x) for x in h1.find_all("span", recursive=False) if text_of(x)] or [text_of(h1)]
-    hero_p = text_of(h1.find_next("p"))
-    cta = next((text_of(x).replace("→", "").strip() for x in hero.find_all("a")), "Discover RMAL")
-    if cta.isupper():
-        w = cta.split()
-        cta = " ".join([w[0].capitalize()] + [x if x == "RMAL" else x.lower() for x in w[1:]])
-
     for div in hero.find_all("div", recursive=False):
         if not div.find("video"):
             div.decompose()
@@ -358,12 +304,11 @@ def do_home(soup, lang, t):
         del video["loop"]
     video["id"] = "rx-hero-video"
     video["preload"] = "auto"
-    hero["class"] = [x for x in classes(hero) if not x.startswith(("h-[", "min-h-["))] + ["rx-hero", "rx-jhero"]
+    hero["class"] = classes(hero) + ["rx-hero"]
     slides = "".join(f'<img class="rx-slide" src="{media(f)}" alt="">' for f in ["hero-2.jpg", "hero-5.jpg", "hero-4.jpg", "hero-1.jpg"])
     hero.append(tag(soup, f'<div class="rx-slides">{slides}</div>'))
     hero.append(tag(soup, '<div class="rx-dots"></div>'))
     hero.append(tag(soup, f'<button class="rx-sound" type="button">{t["sound_on"]}</button>'))
-    hero.append(tag(soup, '<a class="rx-scroll" href="#rx-intro" aria-label="Scroll"><span></span></a>'))
 
     strip = soup.find("section", id="brand-strip")
     if strip:
@@ -380,62 +325,28 @@ def do_home(soup, lang, t):
         strip.clear()
         strip.append(tag(soup, f'<div class="rx-marquee"><ul class="rx-marquee-track">{track}</ul></div>'))
 
-    intro = tag(soup, f"""<section class="rx-jintro" id="rx-intro"><div class="rx-jwrap">
-  <p class="rx-jeyebrow">{h["intro_eyebrow"]}</p>
-  <h1 class="rx-jtitle">{"<br>".join(lines)}</h1><span class="rx-rule"></span>
-  <p class="rx-jtext">{hero_p}</p>
-  <a class="rx-link" href="/{lang}/about">{cta} →</a>
-</div></section>""")
-    strip.insert_after(intro)
+    about = soup.find("section", id="about")
+    if about:
+        swap_class(about, {"bg-cream"}, "rx-bg-cream")
 
     wwd = soup.find("section", id="what-we-do")
     if wwd:
         rebuild_pillars(soup, wwd.find("ul"), t, with_desc=False)
-        centre_head(wwd)
 
-    # Full-bleed image, then a centred title block (brands)
-    e, ttl, link = h["brands"]
-    feature = tag(soup, f"""<section class="rx-jfeature">
-  <a class="rx-jfeature-ph" href="/{lang}/brands"><img src="{media('wagamama.jpg')}" alt="" loading="lazy"></a>
-  <div class="rx-jwrap rx-jfeature-in">
-    <p class="rx-jeyebrow">{e}</p>
-    <h2 class="rx-jtitle">{ttl}</h2><span class="rx-rule"></span>
-    <p class="rx-jtext">{t["brands_intro"]}</p>
-    <a class="rx-link" href="/{lang}/brands">{link} →</a>
-  </div></section>""")
-    (wwd or intro).insert_after(feature)
-
-    # Alternating image/text blocks: Heritage, National Talent, Careers
-    about = soup.find("section", id="about")
     talent = soup.find("section", id="talent")
-    anchor = feature
-    for sec, bg in ((about, "rx-bg-cream"), (talent, "rx-bg-warm")):
-        if sec:
-            swap_class(sec, {"bg-cream"}, bg)
-            sec["class"] = classes(sec) + ["rx-jblock"]
-            anchor.insert_after(sec.extract())
-            anchor = sec
-    ce, ct, cx, cl = h["careers"]
-    careers = tag(soup, f"""<section class="rx-jblock rx-jsplit rx-bg-cream">
-  <div class="rx-jwrap rx-jsplit-in">
-    <a class="rx-jsplit-ph" href="/{lang}/careers"><img src="{media('Build yur career as we build the business.jpg')}" alt="" loading="lazy"></a>
-    <div class="rx-jsplit-text"><p class="rx-jeyebrow">{ce}</p><h2 class="rx-jtitle">{ct}</h2>
-      <p class="rx-jtext">{cx}</p><a class="rx-link" href="/{lang}/careers">{cl} →</a></div>
-  </div></section>""")
-    anchor.insert_after(careers)
+    if talent:
+        e, h, p, link = t["feature"]
+        talent.insert_after(tag(soup, f"""<a class="rx-feature" href="/{lang}/brands">
+  <img src="{media('wagamama.jpg')}" alt="" loading="lazy">
+  <div class="rx-feature-in mx-auto max-w-[1400px] px-4">
+    <p class="font-body text-eyebrow font-semibold uppercase">{e}</p>
+    <h2 class="font-heading">{h}</h2><p class="rx-feature-p">{p}</p>
+    <span class="rx-link">{link} →</span>
+  </div></a>"""))
 
     news = soup.find("section", id="newsroom")
     if news:
         swap_class(news, {"bg-cream"}, "rx-bg-white")
-        news["class"] = classes(news) + ["rx-jnews"]
-        careers.insert_after(news.extract())
-        centre_head(news)
-        ttl, txt, link = h["contact"]
-        news.insert_after(tag(soup, f"""<section class="rx-jcontact"><div class="rx-jwrap">
-  <h2 class="rx-jtitle">{ttl}</h2><span class="rx-rule"></span>
-  <p class="rx-jtext">{txt}</p>
-  <a class="rx-link" href="/{lang}/contact">{link} →</a>
-</div></section>"""))
 
 
 def do_what_we_do(soup, t):
