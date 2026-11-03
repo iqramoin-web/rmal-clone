@@ -35,8 +35,6 @@
     var dotsWrap = hero.querySelector('.rx-dots');
     var sound = hero.querySelector('.rx-sound');
     var current = 0, timer = null;
-    var REVEAL_BEFORE_END = 1.0; // seconds of the navy logo card to show before the iris opens
-    var REVEAL_MS = 1900;
     slides.forEach(function (_, i) {
       var b = document.createElement('button');
       b.setAttribute('aria-label', 'Image ' + (i + 1));
@@ -53,43 +51,23 @@
       clearInterval(timer);
       timer = setInterval(function () { show((current + 1) % slides.length); }, 5000);
     };
-    // Iris reveal out of the film's closing logo card, then hand over to the normal carousel.
-    var revealing = false;
-    var startCarousel = function (instant) {
-      if (revealing) return;
-      revealing = true;
-      slides[0].classList.add('first');
-      show(0);
-      if (instant === true) {
-        hero.classList.add('reveal', 'carousel');
-        if (video) video.pause();
-        restart();
-        return;
-      }
-      hero.classList.add('reveal');
-      setTimeout(function () {
-        hero.classList.add('carousel');
-        if (video) video.pause();
-        restart();
-      }, REVEAL_MS);
+    var startCarousel = function () {
+      if (hero.classList.contains('carousel')) return;
+      hero.classList.add('carousel');
+      show(0); restart();
+      if (video) video.pause();
     };
     if (video) {
-      var small = window.matchMedia('(max-width: 767px)').matches;
-      video.src = (small && video.dataset.srcMobile) || video.dataset.src;
-      video.muted = true;
-      video.addEventListener('timeupdate', function () {
-        if (video.duration && video.duration - video.currentTime <= REVEAL_BEFORE_END) startCarousel();
-      });
       video.addEventListener('ended', startCarousel);
-      video.addEventListener('error', function () { startCarousel(true); });
+      video.addEventListener('error', startCarousel);
       var p = video.play();
-      if (p && p.catch) p.catch(function () { startCarousel(true); });
+      if (p && p.catch) p.catch(startCarousel);
       if (sound) sound.addEventListener('click', function () {
         video.muted = !video.muted;
         sound.style.opacity = video.muted ? '' : '.6';
       });
     } else {
-      startCarousel(true);
+      startCarousel();
     }
   }
 
