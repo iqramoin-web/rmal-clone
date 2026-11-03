@@ -62,6 +62,15 @@ BRAND_LOGOS = {
     "marco-pierre-white": ("marco-pierre-white.png", ""),
 }
 
+# Client-supplied navy logos (logos/) for the homepage strip: key, file, name
+STRIP_LOGOS = [
+    ("wagamama", "wagamama.png", "Wagamama"),
+    ("mazaj", "mazaj.png", "Mazaj"),
+    ("marco-pierre-white", "marco-pierre-white.png", "Marco Pierre White"),
+    ("cupbop", "cupbop.png", "Cupbop"),
+    ("drvn-coffee", "drvn-coffee.svg", "DRVN Coffee"),
+]
+
 # Service pillar photos. Franchise uses the full storefront so the Wagamama sign is not cut.
 PILLAR_IMG = {
     "franchise-brand-operations": ("Global brand operations.jpg", "50% 15%"),
@@ -304,15 +313,21 @@ def do_home(soup, lang, t):
     strip = soup.find("section", id="brand-strip")
     if strip:
         swap_class(strip, {"bg-cream"}, "rx-bg-white")
-        logos = "".join(
-            f'<a href="/{lang}/brands#{k}"><img class="{c}" src="{media(f)}" alt="{k}"></a>' for k, (f, c) in BRAND_LOGOS.items()
-        )
+        # Continuous logo carousel. The set is repeated so the -50% loop never shows a gap.
+        def logo_set(hidden):
+            aria = ' aria-hidden="true" tabindex="-1"' if hidden else ""
+            return "".join(
+                f'<li><a href="/{lang}/brands{"#" + k if k in BRAND_LOGOS else ""}"{aria}>'
+                f'<img class="logo-{k}" src="/logos/{f}" alt="{"" if hidden else name}"></a></li>'
+                for k, f, name in STRIP_LOGOS
+            )
+        track = logo_set(False) + logo_set(True) * 3
         strip.clear()
-        strip.append(tag(soup, f'<div class="rx-logos">{logos}</div>'))
+        strip.append(tag(soup, f'<div class="rx-marquee"><ul class="rx-marquee-track">{track}</ul></div>'))
 
     about = soup.find("section", id="about")
     if about:
-        swap_class(about, {"bg-cream"}, "rx-bg-sand")
+        swap_class(about, {"bg-cream"}, "rx-bg-cream")
 
     wwd = soup.find("section", id="what-we-do")
     if wwd:

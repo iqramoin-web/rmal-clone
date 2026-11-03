@@ -30,6 +30,10 @@ main h3 { font-size: 22px !important; line-height: 1.3 !important; }
 /* ---------- Backgrounds ---------- */
 .rx-bg-white { background: #fff !important; }
 .rx-bg-sand { background: var(--rx-sand) !important; }
+.rx-bg-cream { background: #fbfbf7 !important; }
+
+/* All eyebrow labels at 14px */
+.text-eyebrow, .text-eyebrow-sm, .text-eyebrow-lg { font-size: 14px !important; }
 
 /* ---------- CTAs: no boxes, subtle underline + arrow nudge ---------- */
 .rx-cta, .rx-link {
@@ -196,3 +200,40 @@ body.rx-menu-open { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+
+/* ---------- Brand logo strip: continuous carousel ---------- */
+.rx-marquee {
+  overflow: hidden; direction: ltr;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.rx-marquee-track {
+  display: flex; align-items: center; width: max-content; margin: 0; padding: 0; list-style: none;
+  animation: rx-marquee 40s linear infinite;
+}
+.rx-marquee-track li { flex: none; padding: 0 44px; }
+.rx-marquee-track img { height: 40px; width: auto; display: block; transition: opacity .25s ease, transform .25s ease; }
+.rx-marquee-track a:hover img { transform: scale(1.06); }
+.rx-marquee:hover .rx-marquee-track { animation-play-state: paused; }
+/* Optical sizing: the supplied files have different amounts of padding */
+.rx-marquee-track .logo-wagamama { height: 34px; }
+.rx-marquee-track .logo-mazaj { height: 64px; }
+.rx-marquee-track .logo-marco-pierre-white { height: 60px; }
+.rx-marquee-track .logo-cupbop { height: 38px; }
+.rx-marquee-track .logo-drvn-coffee { height: 46px; }
+[dir="rtl"] .rx-marquee-track { animation-direction: reverse; }
+@keyframes rx-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (max-width: 767px) {
+  .rx-marquee-track { animation-duration: 28s; }
+  .rx-marquee-track li { padding: 0 26px; }
+  .rx-marquee-track img { height: 30px; }
+  .rx-marquee-track .logo-wagamama { height: 26px; }
+  .rx-marquee-track .logo-mazaj { height: 48px; }
+  .rx-marquee-track .logo-marco-pierre-white { height: 46px; }
+  .rx-marquee-track .logo-cupbop { height: 29px; }
+  .rx-marquee-track .logo-drvn-coffee { height: 35px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rx-marquee-track { animation: none; flex-wrap: wrap; justify-content: center; width: auto; row-gap: 20px; }
+  .rx-marquee-track li[aria-hidden], .rx-marquee-track li:has(a[aria-hidden]) { display: none; }
+}
